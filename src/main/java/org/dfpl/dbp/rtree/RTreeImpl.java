@@ -1,9 +1,6 @@
 package org.dfpl.dbp.rtree;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  * RTreeImpl: 4-way R-Tree의 구현 클래스
@@ -37,6 +34,13 @@ public class RTreeImpl implements RTree {
         this.height = 0;
         this.visualizer = null;
     }
+    private List<Point> searchResults = new ArrayList<>();
+
+
+    public RTreeVisualizer getVisualizer() {
+        return visualizer;
+    }
+
 
     /**
      * GUI 시각화 활성화
@@ -473,11 +477,134 @@ public class RTreeImpl implements RTree {
         }
     }
 
+    private List<Rectangle> prunedNodes = new ArrayList<>();
+
     @Override
     public Iterator<Point> search(Rectangle rectangle) {
-        // TODO: Task 2에서 구현
-        return null;
+        List<Point> results = new ArrayList<>();
+        prunedNodes = new ArrayList<>();
+
+        // 빈 트리 처리
+        if (root == null) {
+            return results.iterator();
+        }
+
+        // 루트부터 재귀적으로 탐색
+        searchRecursive(root, rectangle, results);
+
+        return results.iterator();
     }
+
+    /**
+     * 재귀적 탐색 알고리즘
+     *
+     * 알고리즘 흐름:
+     * 1. 현재 노드의 MBR과 검색 범위(rectangle)가 겹치는지 확인
+     *    - 겹치지 않으면 이 서브트리 전체 스킵 (가지치기)
+     * 2. 겹친다면:
+     *    - 리프 노드: 포함된 Point 중 rectangle과 겹치는 점만 수집
+     *    - 내부 노드: 모든 자식에 대해 재귀적으로 탐색
+     *
+     * 예시:
+     * 검색 범위: Rectangle(0, 0, 10, 10)
+     * 루트(MBR: 0,0-100,100) → 겹침 → 재귀
+     *   ├─ 자식A(MBR: 0,0-5,5) → 겹침 → 재귀 → 리프이면 점 수집
+     *   ├─ 자식B(MBR: 50,50-100,100) → 겹침 → 재귀
+     *   └─ 자식C(MBR: 200,200-300,300) → 안 겹침 → 스킵
+     *
+     * @param node 현재 탐색 중인 노드
+     * @param rectangle 검색 범위
+     * @param results 찾은 Point를 저장할 리스트
+     */
+    private void searchRecursive(RTreeNode node, Rectangle rectangle, List<Point> results) {
+        // ===== 1단계: MBR 교차 검사 (가지치기) =====
+        // 현재 노드의 MBR이 검색 범위와 겹치지 않으면 이 서브트리는 탐색할 필요 없음
+        if (!node.getMbr().intersects(rectangle)) {
+            prunedNodes.add(node.getMbr());  // 가지치기 기록
+            return;
+        }
+
+        // ===== 2단계: 리프 노드 처리 =====
+        if (node.isLeaf()) {
+            LeafNode leaf = (LeafNode) node;
+
+            // 리프의 모든 Point를 검사
+            for (Point point : leaf.getPoints()) {
+                // Point가 검색 범위(rectangle) 안에 있는지 확인
+                if (rectangle.contains(point)) {
+                    results.add(point);
+                }
+            }
+            return; // 리프는 자식이 없으므로 여기서 종료
+        }
+
+        // ===== 3단계: 내부 노드 처리 =====
+        InternalNode internal = (InternalNode) node;
+
+        // 모든 자식 노드에 대해 재귀적으로 탐색
+        for (RTreeNode child : internal.getChildren()) {
+            // 각 자식에 대해 동일한 검색 알고리즘 적용
+            searchRecursive(child, rectangle, results);
+        }
+    }
+
+    public int getPrunedCount() {
+        return prunedNodes.size();
+    }
+
+    /**
+     * Task2: 가지치기/방문 노드 기록을 포함하는 검색
+     */
+    public List<Point> searchWithTracking(
+            Rectangle query,
+            Set<RTreeNode> visitedNodes,
+            Set<RTreeNode> prunedNodes
+    ) {
+        List<Point> results = new ArrayList<>();
+
+        if (root == null) return results;
+
+        searchRecTracking(root, query, results, visitedNodes, prunedNodes);
+        this.searchResults = results;
+        return results;
+    }
+
+    private void searchRecTracking(
+            RTreeNode node,
+            Rectangle query,
+            List<Point> results,
+            Set<RTreeNode> visitedNodes,
+            Set<RTreeNode> prunedNodes
+    ) {
+        // 노드 방문 기록
+        visitedNodes.add(node);
+
+        // 1) MBR과 안 겹치면 가지치기
+        if (!node.getMbr().intersects(query)) {
+            prunedNodes.add(node);
+            return;
+        }
+
+        // 2) 리프 노드면 점들 체크
+        if (node.isLeaf()) {
+            LeafNode leaf = (LeafNode) node;
+            for (Point p : leaf.getPoints()) {
+                if (query.contains(p)) {
+                    results.add(p);
+                }
+            }
+            return;
+        }
+
+        // 3) 내부 노드면 자식들 탐색
+        InternalNode internal = (InternalNode) node;
+        for (RTreeNode child : internal.getChildren()) {
+            searchRecTracking(child, query, results, visitedNodes, prunedNodes);
+        }
+    }
+
+
+
 
     @Override
     public Iterator<Point> nearest(Point source, int maxCount) {
@@ -507,4 +634,9 @@ public class RTreeImpl implements RTree {
     public int getHeight() {
         return height;
     }
+
+    public List<Point> getSearchResults() {
+        return searchResults;
+    }
+
 }

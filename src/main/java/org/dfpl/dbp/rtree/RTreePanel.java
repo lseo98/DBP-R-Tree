@@ -18,7 +18,12 @@ import java.util.Set;
  * - R-Tree의 모든 노드와 Point를 화면에 그림
  * - 레벨별로 다른 색상으로 MBR 표시
  * - 검색/KNN 결과 시각화
+ *
+ * Task 1 (삽입): 추가된 Point 강조 표시
+ *  * Task 2 (탐색): 검색 범위, 방문한 노드, 가지치기된 노드 시각화
  */
+
+
 public class RTreePanel extends JPanel {
 
 	// ===== 멤버 변수 =====
@@ -34,6 +39,23 @@ public class RTreePanel extends JPanel {
 	private Set<RTreeNode> visitedNodes = new HashSet<>(); // 방문한 노드들
 	private Set<RTreeNode> prunedNodes = new HashSet<>(); // 가지치기된 노드들
 	private Point highlightPoint; // 강조 표시할 점
+
+
+    // Task 모드 구분
+    private TaskMode currentTask = TaskMode.TASK_1; // 기본값: Task 1
+    private List<Point> searchResults;
+
+    public void setSearchResults(List<Point> results) {
+        this.searchResults = results;
+    }
+
+    /**
+     * Task 모드 구분 열거형
+     */
+    public enum TaskMode {
+        TASK_1, // 삽입 시각화
+        TASK_2  // 탐색 시각화
+    }
 
 	/**
 	 * 생성자: RTreePanel 초기화
@@ -61,6 +83,26 @@ public class RTreePanel extends JPanel {
 	 *
 	 * @param g Graphics 객체 (펜과 붓 같은 도구)
 	 */
+
+    /**
+     * Task 모드 설정
+     */
+    public void setTaskMode(TaskMode mode) {
+        this.currentTask = mode;
+        clearSearchVisualization(); // 모드 전환 시 탐색 시각화 초기화
+    }
+
+    /**
+     * 탐색 시각화 초기화 (Task 2 → Task 1 전환 시)
+     */
+    private void clearSearchVisualization() {
+        searchArea = null;
+        visitedNodes.clear();
+        prunedNodes.clear();
+        highlightPoint = null;
+    }
+
+
 	@Override
 	protected void paintComponent(Graphics g) {
 		// ===== 1단계: 부모 클래스의 기본 그리기 =====
@@ -95,16 +137,52 @@ public class RTreePanel extends JPanel {
 
 		// ===== 6단계: 통계 정보 표시 =====
 		drawStatistics(g2);
-	}
+
+        // ===== Task 2: 탐색 시각화 =====
+        if (currentTask == TaskMode.TASK_2) {
+
+            // 1) 검색 범위 표시
+            if (searchArea != null) {
+                g2.setColor(new Color(255, 255, 0, 120));  // 노란색 반투명
+                drawRectangle(g2, searchArea, false);
+            }
+
+            // 2) 가지치기된 노드 표시
+            g2.setStroke(new BasicStroke(2));
+            g2.setColor(new Color(150, 150, 150, 120)); // 회색
+            for (RTreeNode node : prunedNodes) {
+                drawRectangle(g2, node.getMbr(), false);
+            }
+
+            // 3) 방문한 노드 표시
+            g2.setColor(new Color(100, 160, 255, 120)); // 파란색
+            for (RTreeNode node : visitedNodes) {
+                drawRectangle(g2, node.getMbr(), false);
+            }
+
+            // 4) 검색된 포인트 표시
+            g2.setColor(Color.RED);
+            if (tree.getSearchResults() != null) {
+                for (Point p : tree.getSearchResults()) {
+                    Point sp = dataToScreen(p);
+                    g2.fillOval((int) sp.getX() - 4, (int) sp.getY() - 4, 8, 8);
+                }
+            }
+        }
+
+
+    }
+
 
 	/**
-	 * 트리 구조 그리기
+	 * Task 1: 기본 트리 시각화 (강조 포인트 포함) 트리 구조 그리기
 	 */
 	private void drawTree(Graphics2D g2) {
 		if (tree.getRoot() != null) {
 			drawNodeRecursive(g2, tree.getRoot(), 0);
 		}
 	}
+
 
 	/**
 	 * drawNodeRecursive: 노드를 재귀적으로 그리기
