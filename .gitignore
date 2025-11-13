@@ -1,0 +1,119 @@
+# ==========================================
+# Java & Maven
+# ==========================================
+
+# Compiled class files
+*.class
+
+# Log files
+*.log
+
+# Maven build directory
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+# Maven wrapper
+.mvn/
+
+# Package Files
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# ==========================================
+# IDE - Eclipse
+# ==========================================
+.classpath
+.project
+.settings/
+bin/
+.metadata/
+.recommenders/
+*.launch
+.externalToolBuilders/
+local.properties
+
+# ==========================================
+# IDE - IntelliJ IDEA
+# ==========================================
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# ==========================================
+# IDE - VSCode
+# ==========================================
+.vscode/
+*.code-workspace
+
+# ==========================================
+# Operating System Files
+# ==========================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ==========================================
+# Claude Code
+# ==========================================
+.claude/
+
+# ==========================================
+# Temporary files
+# ==========================================
+*.tmp
+*.temp
+*.swp
+*.swo
+*~.nib
+*.bak
+*.orig
+
+# ==========================================
+# Project specific
+# ==========================================
+# 필요시 여기에 프로젝트별 무시할 파일 추가
