@@ -62,13 +62,17 @@ public class PerformanceComparison {
         System.out.println("=".repeat(80));
         System.out.println();
 
-        int[] dataSizes = { 100, 500, 1000, 5000, 10000 };
+        int[] dataSizes = { 100, 500, 1000, 5000, 10000, 50000, 100000, 500000, 1000000 };
         List<BenchmarkResult> results = new ArrayList<>();
 
         // 모든 데이터 크기에 대해 벤치마크 실행
-        for (int size : dataSizes) {
+        System.out.println("벤치마크 진행 중... (총 " + dataSizes.length + "개 크기)");
+        for (int i = 0; i < dataSizes.length; i++) {
+            int size = dataSizes[i];
+            System.out.print("  [" + (i + 1) + "/" + dataSizes.length + "] " + size + "개... ");
             BenchmarkResult result = runBenchmark(size);
             results.add(result);
+            System.out.println("완료");
         }
         System.out.println();
 
@@ -152,7 +156,8 @@ public class PerformanceComparison {
 
         // 범위 검색 테스트
         System.out.println("--- 범위 검색 테스트 ---");
-        Rectangle searchRect = new Rectangle(new Point(200, 200), new Point(400, 400));
+        // 과제 요구사항: (0, 0) ~ (100, 100)과 유사한 크기
+        Rectangle searchRect = new Rectangle(new Point(100, 100), new Point(200, 200));
         System.out.println("검색 범위: " + searchRect);
 
         long startTime = System.nanoTime();
@@ -171,7 +176,7 @@ public class PerformanceComparison {
 
         // k-NN 검색 테스트
         System.out.println("--- k-NN 검색 테스트 ---");
-        Point queryPoint = new Point(500, 500);
+        Point queryPoint = new Point(150, 150);
         int k = 10;
         System.out.println("쿼리 포인트: " + queryPoint + ", k = " + k);
 
@@ -216,11 +221,12 @@ public class PerformanceComparison {
             rtree.addFast(p);
         }
 
-        // 쿼리 생성 (중간 영역)
+        // 쿼리 생성 (좁은 범위로 R-Tree의 장점 부각)
+        // 과제 요구사항: (0, 0) ~ (100, 100) 참고
         Rectangle searchRect = new Rectangle(
-                new Point(250, 250),
-                new Point(750, 750));
-        Point knnQuery = new Point(500, 500);
+                new Point(100, 100),
+                new Point(200, 200));
+        Point knnQuery = new Point(150, 150);
         int k = 10;
 
         // 워밍업 (JVM 최적화 유도)
@@ -291,9 +297,11 @@ public class PerformanceComparison {
 
     /**
      * 랜덤 포인트 생성 (재현 가능)
+     * 각 데이터 크기마다 다른 시드를 사용하여 일관된 분포 보장
      */
     private static List<Point> generateRandomPoints(int count, long seed) {
-        Random random = new Random(seed);
+        // 데이터 크기를 시드에 반영하여 각 크기마다 다른 분포 생성
+        Random random = new Random(seed + count);
         List<Point> points = new ArrayList<>(count);
 
         for (int i = 0; i < count; i++) {
