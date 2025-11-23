@@ -1,4 +1,4 @@
-package org.dfpl.dbp.rtree;
+package org.dfpl.dbp.rtree.team1;
 
 import java.util.Iterator;
 import java.util.List;
@@ -18,7 +18,7 @@ public class Assignment45 {
 		// Task1: 4-way R-Tree의 생성 (5점)
 		// 요건: point가 추가될 때마다 Java Swing 혹은 Java Fx 등의 GUI에 추가된 점과 함께
 		// 점에 의해 변형된 계층적 Bounding Box들이 표시되어야 함
-		RTree rTree = new RTreeImpl();
+		RTree rTree = new RTreeImpl(false);
 		for (Point point : pointList) {
 			rTree.add(point);
 		}

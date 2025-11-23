@@ -1,12 +1,11 @@
-package org.dfpl.dbp.rtree;
+package org.dfpl.dbp.rtree.team1;
 
 import java.util.*;
 
 public class PerformanceTest {
 
-    // ==========================
+
     // 선형 탐색 함수들
-    // ==========================
 
     // Range Search (Linear)
     static List<Point> linearSearch(List<Point> allPoints, Rectangle rect) {
@@ -31,15 +30,13 @@ public class PerformanceTest {
         return copy.subList(0, Math.min(k, copy.size()));
     }
 
-    // ==========================
-    // main
-    // ==========================
 
     public static void main(String[] args) {
 
-        System.out.println("=== R-Tree vs Linear Search 성능 비교 ===\n");
+        System.out.println(" R-Tree vs Linear Search 성능 비교 \n");
 
-        int[] dataSizes = {50};
+        //여기 값 바꿔서 성능확인
+        int[] dataSizes = {20};
         int[] queryCount = {20};
 
         for (int idx = 0; idx < dataSizes.length; idx++) {
@@ -53,25 +50,25 @@ public class PerformanceTest {
 
             Random rand = new Random(42);
 
-            // ==========================
+
             // 랜덤 데이터 생성
-            // ==========================
+
             List<Point> allPoints = new ArrayList<>();
             for (int i = 0; i < dataSize; i++) {
                 allPoints.add(new Point(rand.nextDouble() * 200, rand.nextDouble() * 200));
             }
 
-            // ==========================
+
             // RTree 생성 및 삽입
-            // ==========================
-            RTree rtree = new RTreeImpl();
+
+            RTree rtree = new RTreeImpl(false);
             for (Point p : allPoints) {
                 rtree.add(p);
             }
 
-            // ==========================
+
             // 범위 검색 (Range)
-            // ==========================
+
             System.out.println("[범위 검색]");
 
             long linearRange = 0;
@@ -132,7 +129,8 @@ public class PerformanceTest {
             System.out.printf("선형 KNN : %.2f µs/쿼리\n", linearKnn / (double) queries / 1000);
             System.out.printf("R-Tree KNN : %.2f µs/쿼리\n", rtreeKnn / (double) queries / 1000);
 
-            System.out.println("\n======================================\n");
+
         }
     }
 }
+
