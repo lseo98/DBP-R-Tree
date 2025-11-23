@@ -7,21 +7,30 @@ import java.util.Random;
 import java.util.PriorityQueue;
 
 /**
- * R-Tree 성능 비교 전용 클래스
+ * R-Tree 성능 비교 유틸리티 클래스
  * 
- * 사용법:
- * 1. 표 모드: java org.dfpl.dbp.rtree.team1.PerformanceComparison table
- * 2. 데모 모드: java org.dfpl.dbp.rtree.team1.PerformanceComparison demo
- * 3. 인자 없음: 기본적으로 표 모드 실행
+ * 실행 방법:
+ * - 표 모드: PerformanceTableMode.java 실행 (Ctrl+F11)
+ * - 데모 모드: PerformanceDemoMode.java 실행 (Ctrl+F11)
  * 
  * 이 클래스는 Assignment45.java와 완전히 분리되어 있으며,
- * GUI 시각화 없이 R-Tree와 선형 스캔의 성능을 비교합니다.
+ * GUI 시각화 없이 R-Tree와 선형 스캔의 성능을 비교하는 기능을 제공합니다.
+ * 
+ * 주요 기능:
+ * - runTableMode(): 여러 데이터 크기에 대한 성능 비교 표 출력
+ * - runDemoMode(): 단일 데이터 크기에 대한 상세 데모
+ * - 최적화: sqrt 제거, getter 캐싱, 중앙값 측정
  */
 public class PerformanceComparison {
 
     private static final long SEED = 42L; // 재현성을 위한 고정 시드
     private static final int WARMUP_ITERATIONS = 5; // 워밍업 횟수 (JVM 최적화)
     private static final int BENCHMARK_ITERATIONS = 20; // 벤치마크 반복 횟수 (안정적인 측정)
+
+    // Private 생성자: 인스턴스 생성 방지 (유틸리티 클래스)
+    private PerformanceComparison() {
+        throw new AssertionError("유틸리티 클래스는 인스턴스화할 수 없습니다.");
+    }
 
     /**
      * 벤치마크 결과를 저장하는 클래스
@@ -44,60 +53,10 @@ public class PerformanceComparison {
     }
 
     /**
-     * 메인 진입점
-     * 
-     * IDE에서 간편 실행:
-     * - PerformanceTableMode.java 실행 (Ctrl+F11) → 표 모드
-     * - PerformanceDemoMode.java 실행 (Ctrl+F11) → 데모 모드
-     * 
-     * 또는 이 클래스를 직접 실행하면 메뉴가 표시됩니다.
-     */
-    public static void main(String[] args) {
-        String mode = null;
-
-        if (args.length > 0) {
-            mode = args[0].toLowerCase();
-        } else {
-            // 인자 없이 실행하면 메뉴 표시
-            System.out.println("=".repeat(80));
-            System.out.println("R-Tree 성능 비교 도구");
-            System.out.println("=".repeat(80));
-            System.out.println();
-            System.out.println("실행 모드를 선택하세요:");
-            System.out.println();
-            System.out.println("  [1] 표 모드 (Table Mode)");
-            System.out.println("      - 여러 데이터 크기 (100, 500, 1000, 5000, 10000)에 대해 비교");
-            System.out.println("      - 결과를 표 형식으로 출력");
-            System.out.println("      - 실행 시간: 약 30초 ~ 1분");
-            System.out.println();
-            System.out.println("  [2] 데모 모드 (Demo Mode)");
-            System.out.println("      - 1000개 포인트로 빠른 테스트");
-            System.out.println("      - 상세한 결과 및 샘플 출력");
-            System.out.println("      - 실행 시간: 약 5초");
-            System.out.println();
-            System.out.println("=".repeat(80));
-            System.out.println();
-            System.out.println("팁: IDE에서 직접 실행하려면");
-            System.out.println("  - PerformanceTableMode.java → Ctrl+F11");
-            System.out.println("  - PerformanceDemoMode.java → Ctrl+F11");
-            System.out.println();
-            System.out.println("기본 모드로 표 모드를 실행합니다...");
-            System.out.println();
-
-            mode = "table";
-        }
-
-        if ("demo".equals(mode)) {
-            runDemoMode();
-        } else {
-            runTableMode();
-        }
-    }
-
-    /**
      * 표 모드: 다양한 데이터 크기에 대해 성능 비교 결과를 두 개의 표로 출력
+     * (PerformanceTableMode에서 호출)
      */
-    private static void runTableMode() {
+    public static void runTableMode() {
         System.out.println("=".repeat(80));
         System.out.println("R-Tree vs 선형 스캔 성능 비교 (표 모드)");
         System.out.println("=".repeat(80));
@@ -171,8 +130,9 @@ public class PerformanceComparison {
 
     /**
      * 데모 모드: 단일 쿼리를 실행하고 결과를 상세히 출력
+     * (PerformanceDemoMode에서 호출)
      */
-    private static void runDemoMode() {
+    public static void runDemoMode() {
         System.out.println("=".repeat(80));
         System.out.println("R-Tree vs 선형 스캔 성능 비교 (데모 모드)");
         System.out.println("=".repeat(80));

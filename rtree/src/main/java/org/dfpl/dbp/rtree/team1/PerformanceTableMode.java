@@ -1,14 +1,17 @@
 package org.dfpl.dbp.rtree.team1;
 
 /**
- * 성능 비교 - 표 모드 전용 실행 클래스
+ * R-Tree 성능 비교 - 표 모드
  * 
- * IDE에서 Ctrl+F11로 바로 실행 가능합니다.
- * 다양한 데이터 크기에 대해 성능을 비교하고 표로 출력합니다.
+ * ▶ 실행 방법: 이 파일을 열고 Ctrl+F11 또는 Run 버튼 클릭
+ * 
+ * ▶ 기능:
+ * - 여러 데이터 크기 (100, 500, 1000, 5000, 10000)에 대해 성능 비교
+ * - 범위 검색과 kNN 검색을 각각 별도 표로 출력
+ * - 각 측정은 20회 반복의 중앙값 사용 (안정적인 결과)
  */
 public class PerformanceTableMode {
     public static void main(String[] args) {
-        PerformanceComparison.main(new String[]{"table"});
+        PerformanceComparison.runTableMode();
     }
 }
-

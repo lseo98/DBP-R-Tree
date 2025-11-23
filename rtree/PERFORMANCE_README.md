@@ -11,13 +11,18 @@
 rtree/src/main/java/org/dfpl/dbp/rtree/team1/
 ├── Assignment45.java             # 기존 과제 코드 (수정 안 됨)
 ├── RTreeImpl.java                # R-Tree 구현 (GUI 제어 생성자 추가됨)
-├── PerformanceComparison.java    # 성능 비교 메인 클래스 (신규)
-├── PerformanceTableMode.java     # 표 모드 전용 실행 클래스 (신규)
-├── PerformanceDemoMode.java      # 데모 모드 전용 실행 클래스 (신규)
+├── PerformanceComparison.java    # 성능 비교 유틸리티 클래스 (직접 실행 불가) ⚠️
+├── PerformanceTableMode.java     # 표 모드 실행 클래스 (Ctrl+F11) ✅
+├── PerformanceDemoMode.java      # 데모 모드 실행 클래스 (Ctrl+F11) ✅
 ├── Point.java
 ├── Rectangle.java
 └── RTree.java
 ```
+
+**중요**: `PerformanceComparison.java`는 직접 실행하지 않습니다!
+
+- 실행 시 안내 메시지만 표시됩니다.
+- 실제 기능은 TableMode/DemoMode에서 사용합니다.
 
 ## 빌드 방법
 
