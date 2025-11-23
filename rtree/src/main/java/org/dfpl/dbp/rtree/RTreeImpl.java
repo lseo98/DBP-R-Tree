@@ -260,9 +260,9 @@ public class RTreeImpl implements RTree {
         this.size++;
         updateGUI();
 
-        // Thread.sleep() 호출. InterruptedException 예외 처리가 필요.
+        // Thread.() 호출. InterruptedException 예외 처리가 필요.
         try {
-            Thread.sleep(3000);
+            Thread.sleep(500);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -277,10 +277,10 @@ public class RTreeImpl implements RTree {
         updateGUI();
 
         // JOptionPane 호출. Assignment45의 main 스레드를 여기서 일시정지시킴.
-        JOptionPane.showMessageDialog(guiFrame,
+        /* JOptionPane.showMessageDialog(guiFrame,
                 "Task 1 complete\n",
                 "Task 1 complete", JOptionPane.INFORMATION_MESSAGE);
-
+        */
         List<Point> result = new ArrayList<>();
         this.currentSearchRect = rectangle;
         this.highlightedPoints.clear();
@@ -296,9 +296,10 @@ public class RTreeImpl implements RTree {
     public Iterator<Point> nearest(Point source, int maxCount) {
         updateGUI();
 
-        JOptionPane.showMessageDialog(guiFrame,
+    /*    JOptionPane.showMessageDialog(guiFrame,
                 "Task 2 complete\n",
                 "Task 2 완료", JOptionPane.INFORMATION_MESSAGE);
+    */
 
         PriorityQueue<DistSpat> pq = new PriorityQueue<>();
         pq.add(new DistSpat(root, 0.0));
@@ -338,10 +339,10 @@ public class RTreeImpl implements RTree {
         if (firstDeleteCall) {
             firstDeleteCall = false;
             updateGUI();
-            JOptionPane.showMessageDialog(guiFrame,
+    /*        JOptionPane.showMessageDialog(guiFrame,
                     "Task 3 complete\n",
                     "Task 3 complete", JOptionPane.INFORMATION_MESSAGE);
-
+*/
             this.currentSearchRect = null;
             this.currentKnnSource = null;
             this.highlightedPoints.clear();
@@ -386,11 +387,11 @@ public class RTreeImpl implements RTree {
         updateGUI();
         boolean result = (this.size == 0);
 
-        JOptionPane.showMessageDialog(guiFrame,
+ /*       JOptionPane.showMessageDialog(guiFrame,
                 "Task 4 complete" +
                         "최종 결과: isEmpty() = " + result,
                 "Task 4 complete", JOptionPane.INFORMATION_MESSAGE);
-
+*/
         return result;
     }
 
