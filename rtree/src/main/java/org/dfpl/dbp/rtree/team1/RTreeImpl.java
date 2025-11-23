@@ -24,6 +24,7 @@ public class RTreeImpl implements RTree {
 
     private Node root;
     private int size;
+    private boolean enableGUI; // GUI 활성화 여부
 
     private JFrame guiFrame;
     private RTreePanel guiPanel;
@@ -41,11 +42,13 @@ public class RTreeImpl implements RTree {
 
     // KNN 시각화
     private volatile List<Node> knnVisitedNodes = Collections.synchronizedList(new ArrayList<>());
-    private volatile java.util.Map<Node, Integer> knnVisitOrder = Collections.synchronizedMap(new java.util.HashMap<>());
+    private volatile java.util.Map<Node, Integer> knnVisitOrder = Collections
+            .synchronizedMap(new java.util.HashMap<>());
     private volatile Node knnCurrentNode; // 현재 방문 중인 노드
     private volatile double knnCurrentBestDist = Double.POSITIVE_INFINITY;
     private volatile List<Point> knnCandidatePoints = Collections.synchronizedList(new ArrayList<>()); // 후보 점들
-    private volatile java.util.Map<Point, Double> knnResultDistances = Collections.synchronizedMap(new java.util.HashMap<>()); // 최종 결과 점들의 거리
+    private volatile java.util.Map<Point, Double> knnResultDistances = Collections
+            .synchronizedMap(new java.util.HashMap<>()); // 최종 결과 점들의 거리
     private volatile Point knnNewlyFoundPoint; // 새로 발견된 점 (선 그리기용)
 
     // Delete 시각화
@@ -120,7 +123,7 @@ public class RTreeImpl implements RTree {
                 }
 
                 Node c = children.stream().filter(Node::hasValidMbr).findFirst().orElse(null);
-                if(c == null) {
+                if (c == null) {
                     this.mbr = createInvalidMbr();
                     return;
                 }
@@ -148,9 +151,9 @@ public class RTreeImpl implements RTree {
     class RTreePanel extends JPanel {
         private final int PADDING = 60;
         // 계층별 MBR 색상
-        private final Color COLOR_ROOT = new Color(148, 0, 211);   // 보라 (Purple)
+        private final Color COLOR_ROOT = new Color(148, 0, 211); // 보라 (Purple)
         private final Color COLOR_INTERNAL = new Color(0, 0, 255); // 파랑 (Blue)
-        private final Color COLOR_LEAF = new Color(0, 128, 0);     // 초록 (Green)
+        private final Color COLOR_LEAF = new Color(0, 128, 0); // 초록 (Green)
         private double dataMaxX = 200;
         private double dataMaxY = 200;
 
@@ -265,7 +268,8 @@ public class RTreeImpl implements RTree {
 
         // 계층별 MBR 그리기 (Root=보라, Internal=파랑, Leaf=초록, 모두 투명하게)
         private void drawDepthMBR(Graphics2D g, Node node, int depth, double scale, int yOffset) {
-            if (node == null || !node.hasValidMbr()) return;
+            if (node == null || !node.hasValidMbr())
+                return;
 
             // 좌표 계산
             Rectangle mbr = node.getMbr();
@@ -325,7 +329,7 @@ public class RTreeImpl implements RTree {
 
             g.setColor(Color.BLACK);
             g.setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 12));
-            g.drawString(label, x + w/2 - 20, y + h/2);
+            g.drawString(label, x + w / 2 - 20, y + h / 2);
         }
 
         // Range Search 영역
@@ -347,7 +351,8 @@ public class RTreeImpl implements RTree {
         private void drawPrunedNodes(Graphics2D g, double scale, int yOffset) {
             g.setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 10));
             for (Node pruned : new ArrayList<>(prunedNodes)) {
-                if (!pruned.hasValidMbr()) continue;
+                if (!pruned.hasValidMbr())
+                    continue;
 
                 Rectangle mbr = pruned.getMbr();
                 int x = (int) (mbr.getLeftTop().getX() * scale) + PADDING;
@@ -379,7 +384,7 @@ public class RTreeImpl implements RTree {
 
                 // "PRUNED" 텍스트
                 g.setColor(Color.RED);
-                g.drawString("PRUNED", x + w/2 - 25, y + h/2);
+                g.drawString("PRUNED", x + w / 2 - 25, y + h / 2);
 
                 // Pruned 노드 안의 점들도 회색으로 표시
                 drawPrunedPoints(g, pruned, scale, yOffset);
@@ -388,7 +393,8 @@ public class RTreeImpl implements RTree {
 
         // Delete 시각화: 삭제 대상 리프 강조
         private void drawDeletingLeaf(Graphics2D g, double scale, int yOffset) {
-            if (deletingLeafNode == null || !deletingLeafNode.hasValidMbr()) return;
+            if (deletingLeafNode == null || !deletingLeafNode.hasValidMbr())
+                return;
 
             Rectangle mbr = deletingLeafNode.getMbr();
             int x = (int) (mbr.getLeftTop().getX() * scale) + PADDING;
@@ -407,7 +413,8 @@ public class RTreeImpl implements RTree {
 
         // KNN 시각화 (수정본: MBR 가림 현상 해결 + 탐색 범위 명확화)
         private void drawKNNVisualization(Graphics2D g, double scale, int yOffset) {
-            if (currentKnnSource == null) return;
+            if (currentKnnSource == null)
+                return;
 
             int qx = (int) (currentKnnSource.getX() * scale) + PADDING;
             int qy = yOffset - (int) (currentKnnSource.getY() * scale);
@@ -422,7 +429,8 @@ public class RTreeImpl implements RTree {
 
                 // 테두리는 선명하게
                 g.setColor(new Color(0, 50, 200));
-                g.setStroke(new java.awt.BasicStroke(1.5f, java.awt.BasicStroke.CAP_BUTT, java.awt.BasicStroke.JOIN_MITER, 10, new float[]{10, 5}, 0));
+                g.setStroke(new java.awt.BasicStroke(1.5f, java.awt.BasicStroke.CAP_BUTT,
+                        java.awt.BasicStroke.JOIN_MITER, 10, new float[] { 10, 5 }, 0));
                 g.drawOval(qx - radius, qy - radius, 2 * radius, 2 * radius);
                 g.setStroke(new java.awt.BasicStroke(1));
 
@@ -434,7 +442,8 @@ public class RTreeImpl implements RTree {
             // 2. Pruned nodes (가지치기 된 노드) + 해당 점들 표시
             g.setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 10));
             for (Node pruned : new ArrayList<>(prunedNodes)) {
-                if (!pruned.hasValidMbr()) continue;
+                if (!pruned.hasValidMbr())
+                    continue;
                 Rectangle mbr = pruned.getMbr();
                 int x = (int) (mbr.getLeftTop().getX() * scale) + PADDING;
                 int y = yOffset - (int) (mbr.getRightBottom().getY() * scale);
@@ -447,7 +456,7 @@ public class RTreeImpl implements RTree {
                 g.setColor(new Color(200, 0, 0));
                 g.drawLine(x, y, x + w, y + h);
                 g.drawLine(x + w, y, x, y + h);
-                g.drawString("PRUNED", x + w/2 - 20, y + h/2);
+                g.drawString("PRUNED", x + w / 2 - 20, y + h / 2);
 
                 // Pruned 노드 안의 점들도 회색으로 표시
                 drawPrunedPoints(g, pruned, scale, yOffset);
@@ -456,7 +465,8 @@ public class RTreeImpl implements RTree {
             // 3. 방문한 노드들 (테두리만 그려서 뒤 MBR 보이게)
             g.setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 12));
             for (Node visited : new ArrayList<>(knnVisitedNodes)) {
-                if (!visited.hasValidMbr() || visited == knnCurrentNode) continue;
+                if (!visited.hasValidMbr() || visited == knnCurrentNode)
+                    continue;
 
                 Rectangle mbr = visited.getMbr();
                 int x = (int) (mbr.getLeftTop().getX() * scale) + PADDING;
@@ -563,10 +573,13 @@ public class RTreeImpl implements RTree {
             // 이전 MBR (점선)
             int x1 = (int) (oldMbrBeforeDelete.getLeftTop().getX() * scale) + PADDING;
             int y1 = yOffset - (int) (oldMbrBeforeDelete.getRightBottom().getY() * scale);
-            int w1 = (int) ((oldMbrBeforeDelete.getRightBottom().getX() - oldMbrBeforeDelete.getLeftTop().getX()) * scale);
-            int h1 = (int) ((oldMbrBeforeDelete.getRightBottom().getY() - oldMbrBeforeDelete.getLeftTop().getY()) * scale);
+            int w1 = (int) ((oldMbrBeforeDelete.getRightBottom().getX() - oldMbrBeforeDelete.getLeftTop().getX())
+                    * scale);
+            int h1 = (int) ((oldMbrBeforeDelete.getRightBottom().getY() - oldMbrBeforeDelete.getLeftTop().getY())
+                    * scale);
             g.setColor(new Color(255, 100, 100, 150));
-            g.setStroke(new java.awt.BasicStroke(2, java.awt.BasicStroke.CAP_BUTT, java.awt.BasicStroke.JOIN_MITER, 10, new float[]{5}, 0));
+            g.setStroke(new java.awt.BasicStroke(2, java.awt.BasicStroke.CAP_BUTT, java.awt.BasicStroke.JOIN_MITER, 10,
+                    new float[] { 5 }, 0));
             g.drawRect(x1, y1, w1, h1);
 
             // 새 MBR (실선)
@@ -595,7 +608,8 @@ public class RTreeImpl implements RTree {
 
         // 모든 점 그리기
         private void drawAllPoints(Graphics2D g, Node node, double scale, int yOffset) {
-            if (node == null) return;
+            if (node == null)
+                return;
 
             if (node.leaf && node.points != null) {
                 for (Point p : node.points) {
@@ -643,7 +657,7 @@ public class RTreeImpl implements RTree {
                     g.setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 12));
                     String label = String.valueOf(idx++);
                     int labelWidth = g.getFontMetrics().stringWidth(label);
-                    g.drawString(label, x - labelWidth/2, y + 4);
+                    g.drawString(label, x - labelWidth / 2, y + 4);
 
                     // 거리 표시
                     Double dist = knnResultDistances.get(p);
@@ -690,23 +704,39 @@ public class RTreeImpl implements RTree {
     private class DistSpat implements Comparable<DistSpat> {
         final double dist;
         final Object item;
-        DistSpat(Object item, double dist) { this.item = item; this.dist = dist; }
-        @Override public int compareTo(DistSpat other) { return Double.compare(this.dist, other.dist); }
+
+        DistSpat(Object item, double dist) {
+            this.item = item;
+            this.dist = dist;
+        }
+
+        @Override
+        public int compareTo(DistSpat other) {
+            return Double.compare(this.dist, other.dist);
+        }
     }
 
     // RTreeImpl 생성자. Assignment45가 new RTreeImpl()을 호출할 때 GUI 창을 생성.
     public RTreeImpl() {
+        this(true);
+    }
+
+    // RTreeImpl 생성자 (GUI 제어용). enableGUI가 false면 시각화 없이 동작.
+    public RTreeImpl(boolean enableGUI) {
         this.root = new Node(true, null);
         this.size = 0;
+        this.enableGUI = enableGUI;
 
-        SwingUtilities.invokeLater(() -> {
-            this.guiFrame = new JFrame("R-Tree 시각화 (Assignment 45) - Quadratic Split");
-            this.guiPanel = new RTreePanel();
-            this.guiFrame.add(this.guiPanel);
-            this.guiFrame.setSize(800, 800);
-            this.guiFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            this.guiFrame.setVisible(true);
-        });
+        if (enableGUI) {
+            SwingUtilities.invokeLater(() -> {
+                this.guiFrame = new JFrame("R-Tree 시각화 (Assignment 45) - Quadratic Split");
+                this.guiPanel = new RTreePanel();
+                this.guiFrame.add(this.guiPanel);
+                this.guiFrame.setSize(800, 800);
+                this.guiFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                this.guiFrame.setVisible(true);
+            });
+        }
     }
 
     // updateGUI 헬퍼 메서드. GUI를 갱신할 때 스레드 문제를 해결(EDT에서 실행).
@@ -716,6 +746,86 @@ public class RTreeImpl implements RTree {
                 guiPanel.repaint();
             });
         }
+    }
+
+    // 벤치마크용 메서드: GUI 없이 빠르게 추가 (중복 체크 제거로 성능 향상)
+    public void addFast(Point point) {
+        Node leaf = chooseLeaf(root, point);
+        insert(leaf, point);
+        this.size++;
+    }
+
+    // 벤치마크용 메서드: GUI 없이 빠르게 범위 검색
+    public Iterator<Point> searchFast(Rectangle rectangle) {
+        List<Point> result = new ArrayList<>();
+        searchRecursive(root, rectangle, result);
+        return result.iterator();
+    }
+
+    // 벤치마크용 메서드: GUI 없이 빠르게 k-NN 검색 (제곱 거리 최적화)
+    public Iterator<Point> nearestFast(Point source, int maxCount) {
+        PriorityQueue<DistSpat> pq = new PriorityQueue<>();
+        pq.add(new DistSpat(root, 0.0));
+        List<Point> result = new ArrayList<>();
+
+        // 소스 좌표 캐싱
+        double sx = source.getX();
+        double sy = source.getY();
+
+        while (!pq.isEmpty() && result.size() < maxCount) {
+            DistSpat current = pq.poll();
+
+            if (current.item instanceof Point) {
+                Point p = (Point) current.item;
+                result.add(p);
+            } else {
+                Node node = (Node) current.item;
+                if (node.leaf) {
+                    for (Point p : node.points) {
+                        // 제곱 거리 사용 (sqrt 제거)
+                        double dx = p.getX() - sx;
+                        double dy = p.getY() - sy;
+                        double distSq = dx * dx + dy * dy;
+                        pq.add(new DistSpat(p, distSq));
+                    }
+                } else {
+                    for (Node child : node.children) {
+                        if (child.hasValidMbr()) {
+                            double minDistSq = rectMinDistanceSquared(child.getMbr(), source);
+                            pq.add(new DistSpat(child, minDistSq));
+                        }
+                    }
+                }
+            }
+        }
+        return result.iterator();
+    }
+
+    // rectMinDistance의 제곱 거리 버전 (벤치마크 최적화용)
+    private double rectMinDistanceSquared(Rectangle r, Point p) {
+        if (r.getLeftTop().getX() == Double.POSITIVE_INFINITY) {
+            return Double.POSITIVE_INFINITY;
+        }
+        double px = p.getX();
+        double py = p.getY();
+        double minX = r.getLeftTop().getX();
+        double minY = r.getLeftTop().getY();
+        double maxX = r.getRightBottom().getX();
+        double maxY = r.getRightBottom().getY();
+
+        double dx = 0;
+        double dy = 0;
+        if (px < minX) {
+            dx = minX - px;
+        } else if (px > maxX) {
+            dx = px - maxX;
+        }
+        if (py < minY) {
+            dy = minY - py;
+        } else if (py > maxY) {
+            dy = py - maxY;
+        }
+        return dx * dx + dy * dy; // sqrt 제거
     }
 
     // add 메서드. 포인트를 삽입하고, Thread.sleep으로 애니메이션 효과를 줌.
@@ -749,10 +859,12 @@ public class RTreeImpl implements RTree {
         this.size++;
         updateGUI();
 
-        try {
-            Thread.sleep(1500);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        if (enableGUI) {
+            try {
+                Thread.sleep(1500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
 
         // 강조 해제
@@ -790,7 +902,10 @@ public class RTreeImpl implements RTree {
 
         // 1. 검색 영역 표시
         updateGUI();
-        try { Thread.sleep(800); } catch (InterruptedException e) {}
+        try {
+            Thread.sleep(800);
+        } catch (InterruptedException e) {
+        }
 
         // 2. Pruned 노드를 수집하면서 검색 (애니메이션)
         searchRecursiveWithPruning(root, rectangle, result);
@@ -798,7 +913,10 @@ public class RTreeImpl implements RTree {
         // 3. 최종 결과 표시
         this.highlightedPoints.addAll(result);
         updateGUI();
-        try { Thread.sleep(1000); } catch (InterruptedException e) {}
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+        }
 
         // Task 2 완료 모달 (Range Search 결과를 보여주면서)
         JOptionPane.showMessageDialog(guiFrame,
@@ -818,7 +936,10 @@ public class RTreeImpl implements RTree {
                     this.highlightedPoints.clear();
                     this.highlightedPoints.addAll(result);
                     updateGUI();
-                    try { Thread.sleep(400); } catch (InterruptedException e) {}
+                    try {
+                        Thread.sleep(400);
+                    } catch (InterruptedException e) {
+                    }
                 }
             }
         } else {
@@ -831,7 +952,10 @@ public class RTreeImpl implements RTree {
                     prunedNodes.add(child);
                     collectAllDescendants(child, prunedNodes);
                     updateGUI();
-                    try { Thread.sleep(500); } catch (InterruptedException e) {}
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                    }
                 }
             }
         }
@@ -890,7 +1014,10 @@ public class RTreeImpl implements RTree {
                 this.knnNewlyFoundPoint = p;
                 this.knnCandidatePoints.remove(p);
                 updateGUI();
-                try { Thread.sleep(1000); } catch (InterruptedException e) {}
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                }
 
                 // bestDist 업데이트 + 원 그리기
                 this.knnCurrentBestDist = dist;
@@ -901,7 +1028,10 @@ public class RTreeImpl implements RTree {
                 this.highlightedPoints.clear();
                 this.highlightedPoints.addAll(result);
                 updateGUI();
-                try { Thread.sleep(800); } catch (InterruptedException e) {}
+                try {
+                    Thread.sleep(800);
+                } catch (InterruptedException e) {
+                }
 
             } else {
                 // Node pop: 현재 방문 노드 강조
@@ -910,16 +1040,22 @@ public class RTreeImpl implements RTree {
                 knnVisitedNodes.add(node);
                 knnVisitOrder.put(node, visitOrder++);
                 updateGUI();
-                try { Thread.sleep(700); } catch (InterruptedException e) {}
+                try {
+                    Thread.sleep(700);
+                } catch (InterruptedException e) {
+                }
 
                 if (node.leaf) {
                     // Leaf 도달 → 점들을 후보로 추가
                     for (Point p : node.points) {
                         this.knnCandidatePoints.add(p);
-                        pq.add(new DistSpat(p, rectMinDistance(new Rectangle(p,p), source)));
+                        pq.add(new DistSpat(p, rectMinDistance(new Rectangle(p, p), source)));
                     }
                     updateGUI();
-                    try { Thread.sleep(600); } catch (InterruptedException e) {}
+                    try {
+                        Thread.sleep(600);
+                    } catch (InterruptedException e) {
+                    }
                 } else {
                     // 내부 노드 → 자식들 PQ에 추가 + Pruning 체크
                     for (Node child : node.children) {
@@ -930,7 +1066,10 @@ public class RTreeImpl implements RTree {
                                 prunedNodes.add(child);
                                 collectAllDescendants(child, prunedNodes);
                                 updateGUI();
-                                try { Thread.sleep(500); } catch (InterruptedException e) {}
+                                try {
+                                    Thread.sleep(500);
+                                } catch (InterruptedException e) {
+                                }
                             } else {
                                 pq.add(new DistSpat(child, minDist));
                             }
@@ -952,7 +1091,10 @@ public class RTreeImpl implements RTree {
         this.highlightedPoints.addAll(result);
         // knnCurrentBestDist와 knnResultDistances는 유지 (원과 거리 표시)
         updateGUI();
-        try { Thread.sleep(1000); } catch (InterruptedException e) {}
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+        }
 
         // Task 3 완료 모달 (KNN 결과를 보여주면서)
         JOptionPane.showMessageDialog(guiFrame,
@@ -993,8 +1135,8 @@ public class RTreeImpl implements RTree {
             return;
         }
         Point toRemove = null;
-        for(Point p : leaf.points) {
-            if(p.getX() == point.getX() && p.getY() == point.getY()) {
+        for (Point p : leaf.points) {
+            if (p.getX() == point.getX() && p.getY() == point.getY()) {
                 toRemove = p;
                 break;
             }
@@ -1007,7 +1149,10 @@ public class RTreeImpl implements RTree {
         this.deletingPoint = point;
         this.deletingLeafNode = leaf;
         updateGUI();
-        try { Thread.sleep(600); } catch (InterruptedException e) {}
+        try {
+            Thread.sleep(600);
+        } catch (InterruptedException e) {
+        }
 
         // 2. 삭제 전 MBR 저장
         this.oldMbrBeforeDelete = new Rectangle(leaf.mbr.getLeftTop(), leaf.mbr.getRightBottom());
@@ -1022,7 +1167,10 @@ public class RTreeImpl implements RTree {
         }
         this.deletingPoint = null; // 점은 사라졌으니 X 표시 제거
         updateGUI();
-        try { Thread.sleep(700); } catch (InterruptedException e) {}
+        try {
+            Thread.sleep(700);
+        } catch (InterruptedException e) {
+        }
 
         // 5. Tree 재조정
         condenseTree(leaf);
@@ -1046,7 +1194,7 @@ public class RTreeImpl implements RTree {
         boolean result = (this.size == 0);
 
         JOptionPane.showMessageDialog(guiFrame,
-                "Task 4 complete" ,
+                "Task 4 complete",
                 "Task 4 complete", JOptionPane.INFORMATION_MESSAGE);
 
         return result;
@@ -1110,9 +1258,9 @@ public class RTreeImpl implements RTree {
         } else {
             group1.children.clear();
             group1.children.add((Node) seed1);
-            ((Node)seed1).parent = group1;
+            ((Node) seed1).parent = group1;
             group2.children.add((Node) seed2);
-            ((Node)seed2).parent = group2;
+            ((Node) seed2).parent = group2;
         }
 
         // IMPORTANT: make sure MBRs reflect the seed assignments before pickNext
@@ -1144,7 +1292,7 @@ public class RTreeImpl implements RTree {
                 if (group1.children.size() + entries.size() == MIN_ENTRIES) {
                     for (Object e : new ArrayList<>(entries)) {
                         group1.children.add((Node) e);
-                        ((Node)e).parent = group1;
+                        ((Node) e).parent = group1;
                     }
                     entries.clear();
                     break;
@@ -1152,7 +1300,7 @@ public class RTreeImpl implements RTree {
                 if (group2.children.size() + entries.size() == MIN_ENTRIES) {
                     for (Object e : new ArrayList<>(entries)) {
                         group2.children.add((Node) e);
-                        ((Node)e).parent = group2;
+                        ((Node) e).parent = group2;
                     }
                     entries.clear();
                     break;
@@ -1168,27 +1316,51 @@ public class RTreeImpl implements RTree {
             double cost2 = rectEnlargement(mbr2, entryMbr);
 
             if (cost1 < cost2) {
-                if (node.leaf) group1.points.add((Point) nextEntry);
-                else { group1.children.add((Node) nextEntry); ((Node)nextEntry).parent = group1; }
+                if (node.leaf)
+                    group1.points.add((Point) nextEntry);
+                else {
+                    group1.children.add((Node) nextEntry);
+                    ((Node) nextEntry).parent = group1;
+                }
             } else if (cost2 < cost1) {
-                if (node.leaf) group2.points.add((Point) nextEntry);
-                else { group2.children.add((Node) nextEntry); ((Node)nextEntry).parent = group2; }
+                if (node.leaf)
+                    group2.points.add((Point) nextEntry);
+                else {
+                    group2.children.add((Node) nextEntry);
+                    ((Node) nextEntry).parent = group2;
+                }
             } else {
                 if (rectArea(mbr1) < rectArea(mbr2)) {
-                    if (node.leaf) group1.points.add((Point) nextEntry);
-                    else { group1.children.add((Node) nextEntry); ((Node)nextEntry).parent = group1; }
+                    if (node.leaf)
+                        group1.points.add((Point) nextEntry);
+                    else {
+                        group1.children.add((Node) nextEntry);
+                        ((Node) nextEntry).parent = group1;
+                    }
                 } else if (rectArea(mbr2) < rectArea(mbr1)) {
-                    if (node.leaf) group2.points.add((Point) nextEntry);
-                    else { group2.children.add((Node) nextEntry); ((Node)nextEntry).parent = group2; }
+                    if (node.leaf)
+                        group2.points.add((Point) nextEntry);
+                    else {
+                        group2.children.add((Node) nextEntry);
+                        ((Node) nextEntry).parent = group2;
+                    }
                 } else {
                     int size1 = node.leaf ? group1.points.size() : group1.children.size();
                     int size2 = node.leaf ? group2.points.size() : group2.children.size();
                     if (size1 <= size2) {
-                        if (node.leaf) group1.points.add((Point) nextEntry);
-                        else { group1.children.add((Node) nextEntry); ((Node)nextEntry).parent = group1; }
+                        if (node.leaf)
+                            group1.points.add((Point) nextEntry);
+                        else {
+                            group1.children.add((Node) nextEntry);
+                            ((Node) nextEntry).parent = group1;
+                        }
                     } else {
-                        if (node.leaf) group2.points.add((Point) nextEntry);
-                        else { group2.children.add((Node) nextEntry); ((Node)nextEntry).parent = group2; }
+                        if (node.leaf)
+                            group2.points.add((Point) nextEntry);
+                        else {
+                            group2.children.add((Node) nextEntry);
+                            ((Node) nextEntry).parent = group2;
+                        }
                     }
                 }
             }
@@ -1201,11 +1373,16 @@ public class RTreeImpl implements RTree {
         group1.recalcMbr();
         group2.recalcMbr();
 
-        // Split visualization
-        this.splitGroup1 = group1;
-        this.splitGroup2 = group2;
-        updateGUI();
-        try { Thread.sleep(1000); } catch (InterruptedException e) {}
+        // Split visualization (GUI가 켜져 있을 때만 실행)
+        if (enableGUI) {
+            this.splitGroup1 = group1;
+            this.splitGroup2 = group2;
+            updateGUI();
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+        }
 
         return new Node[] { group1, group2 };
     }
@@ -1263,7 +1440,8 @@ public class RTreeImpl implements RTree {
         Node nn = newNode;
         while (n != root) {
             Node parent = n.parent;
-            if (parent == null) break;
+            if (parent == null)
+                break;
 
             // 핵심 로직. 자식(nn)을 먼저 추가하고, MBR을 재계산해야 .
             if (nn != null) {
@@ -1347,10 +1525,11 @@ public class RTreeImpl implements RTree {
             } else {
                 n.recalcMbr();
             }
-            if(parent == null) break;
+            if (parent == null)
+                break;
 
             // handleUnderflow에서 n이 제거됐는지 확인 후 부모로 이동.
-            if(parent.children.contains(n)) {
+            if (parent.children.contains(n)) {
                 n = parent;
             } else {
                 n = parent;
@@ -1369,7 +1548,8 @@ public class RTreeImpl implements RTree {
     // handleUnderflow 헬퍼 메서드. m=2개 미만인 노드를 형제와 병합(Merge) 또는 재분배(Redistribution).
     private void handleUnderflow(Node node) {
         Node parent = node.parent;
-        if (parent == null) return;
+        if (parent == null)
+            return;
         Node sibling = null;
         for (Node s : parent.children) {
             if (s != node) {
@@ -1459,7 +1639,8 @@ public class RTreeImpl implements RTree {
 
     // rectIntersects 헬퍼 메서드. 두 사각형이 겹치는지 확인.
     private boolean rectIntersects(Rectangle r1, Rectangle r2) {
-        if (r1 == null || r2 == null) return false;
+        if (r1 == null || r2 == null)
+            return false;
         if (r1.getLeftTop().getX() == Double.POSITIVE_INFINITY ||
                 r2.getLeftTop().getX() == Double.POSITIVE_INFINITY) {
             return false;
@@ -1472,7 +1653,8 @@ public class RTreeImpl implements RTree {
 
     // rectEnlargement 헬퍼 메서드. 점을 포할 때 면적 증가량을 계산.
     private double rectEnlargement(Rectangle r, Point p) {
-        if (p == null) return 0;
+        if (p == null)
+            return 0;
         if (r.getLeftTop().getX() == Double.POSITIVE_INFINITY) {
             return 0;
         }
@@ -1536,7 +1718,8 @@ public class RTreeImpl implements RTree {
         } else if (p.getY() > r.getRightBottom().getY()) {
             dy = p.getY() - r.getRightBottom().getY();
         }
-        if (dx == 0 && dy == 0) return 0.0;
+        if (dx == 0 && dy == 0)
+            return 0.0;
         return Math.sqrt(dx * dx + dy * dy);
     }
 }
