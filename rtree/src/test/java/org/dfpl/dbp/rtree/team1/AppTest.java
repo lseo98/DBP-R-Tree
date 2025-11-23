@@ -1,4 +1,4 @@
-package org.dfpl.dbp.rtree;
+package org.dfpl.dbp.rtree.team1;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 

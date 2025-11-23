@@ -1,4 +1,4 @@
-package org.dfpl.dbp.rtree;
+package org.dfpl.dbp.rtree.team1;
 
 public class Point {
 	private double x;

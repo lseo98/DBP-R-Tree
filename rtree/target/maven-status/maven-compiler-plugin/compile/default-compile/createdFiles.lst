@@ -1,8 +1,8 @@
-org/dfpl/dbp/rtree/RTreeImpl$Node.class
-org/dfpl/dbp/rtree/RTreeImpl.class
-org/dfpl/dbp/rtree/Point.class
-org/dfpl/dbp/rtree/Rectangle.class
-org/dfpl/dbp/rtree/RTreeImpl$RTreePanel.class
-org/dfpl/dbp/rtree/Assignment45.class
-org/dfpl/dbp/rtree/RTree.class
-org/dfpl/dbp/rtree/RTreeImpl$DistSpat.class
+org/dfpl/dbp/rtree/team1/RTreeImpl.class
+org/dfpl/dbp/rtree/team1/RTreeImpl$DistSpat.class
+org/dfpl/dbp/rtree/team1/RTreeImpl$RTreePanel.class
+org/dfpl/dbp/rtree/team1/RTreeImpl$Node.class
+org/dfpl/dbp/rtree/team1/Point.class
+org/dfpl/dbp/rtree/team1/Assignment45.class
+org/dfpl/dbp/rtree/team1/RTree.class
+org/dfpl/dbp/rtree/team1/Rectangle.class

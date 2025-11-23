@@ -1,4 +1,4 @@
-package org.dfpl.dbp.rtree;
+package org.dfpl.dbp.rtree.team1;
 
 import java.util.Iterator;
 import java.util.List;
@@ -1291,6 +1291,9 @@ public class RTreeImpl implements RTree {
             nn.parent = newRoot;
             newRoot.recalcMbr();
             this.root = newRoot;
+        } else {
+            // nn == null인 경우에도 root MBR 재계산 (중요!)
+            root.recalcMbr();
         }
     }
 
@@ -1363,7 +1366,7 @@ public class RTreeImpl implements RTree {
         }
     }
 
-    // handleUnderflow 헬퍼 메서드. m=2개 미만인 노드를 형제와 병합(Merge).
+    // handleUnderflow 헬퍼 메서드. m=2개 미만인 노드를 형제와 병합(Merge) 또는 재분배(Redistribution).
     private void handleUnderflow(Node node) {
         Node parent = node.parent;
         if (parent == null) return;
@@ -1378,17 +1381,27 @@ public class RTreeImpl implements RTree {
             return;
         }
 
-        // (재분배(Re-distribution)는 생략하고 병합(Merge)만 구현)
         if (node.leaf) {
+            // 1. 합병 가능한 경우 (두 노드를 합쳐도 MAX_ENTRIES 이하)
             if (sibling.points.size() + node.points.size() <= MAX_ENTRIES) {
                 sibling.points.addAll(node.points);
                 parent.children.remove(node);
                 node.points.clear();
                 sibling.recalcMbr();
-            } else {
+            }
+            // 2. 합병 불가능한 경우 -> 재분배(Redistribution)
+            else {
+                // 형제한테서 빌려와서 MIN_ENTRIES 개수 맞추기
+                while (node.points.size() < MIN_ENTRIES && sibling.points.size() > MIN_ENTRIES) {
+                    Point borrow = sibling.points.remove(sibling.points.size() - 1);
+                    node.points.add(0, borrow);
+                }
                 node.recalcMbr();
+                sibling.recalcMbr();
             }
         } else {
+            // 내부 노드 처리
+            // 1. 합병 가능한 경우
             if (sibling.children.size() + node.children.size() <= MAX_ENTRIES) {
                 sibling.children.addAll(node.children);
                 for (Node child : node.children) {
@@ -1397,8 +1410,17 @@ public class RTreeImpl implements RTree {
                 parent.children.remove(node);
                 node.children.clear();
                 sibling.recalcMbr();
-            } else {
+            }
+            // 2. 합병 불가능한 경우 -> 재분배(Redistribution)
+            else {
+                // 형제한테서 빌려와서 MIN_ENTRIES 개수 맞추기
+                while (node.children.size() < MIN_ENTRIES && sibling.children.size() > MIN_ENTRIES) {
+                    Node borrow = sibling.children.remove(sibling.children.size() - 1);
+                    borrow.parent = node; // 부모 변경 중요!
+                    node.children.add(0, borrow);
+                }
                 node.recalcMbr();
+                sibling.recalcMbr();
             }
         }
     }
