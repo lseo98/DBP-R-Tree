@@ -24,8 +24,8 @@ import java.util.PriorityQueue;
 public class PerformanceComparison {
 
     private static final long SEED = 42L; // 재현성을 위한 고정 시드
-    private static final int WARMUP_ITERATIONS = 5; // 워밍업 횟수 (JVM 최적화)
-    private static final int BENCHMARK_ITERATIONS = 20; // 벤치마크 반복 횟수 (안정적인 측정)
+    private static final int WARMUP_ITERATIONS = 10; // 워밍업 횟수 (JVM 최적화)
+    private static final int BENCHMARK_ITERATIONS = 50; // 벤치마크 반복 횟수 (매우 안정적인 측정)
 
     // Private 생성자: 인스턴스 생성 방지 (유틸리티 클래스)
     private PerformanceComparison() {
